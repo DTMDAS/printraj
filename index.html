@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Photo Print</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #eef2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; }
+        .card { background: #ffffff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 100%; max-width: 420px; text-align: center; }
+        h2 { color: #1a1a1a; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
+        .upload-box { border: 2px dashed #007bff; border-radius: 12px; padding: 20px; background: #f8fafc; cursor: pointer; margin-bottom: 15px; position: relative; }
+        .upload-box input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+        .upload-icon { font-size: 40px; color: #007bff; margin-bottom: 8px; }
+        .upload-text { font-size: 14px; color: #555; }
+        .preview { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 15px; display: none; object-fit: contain; }
+        button { background: #007bff; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #94c2f5; cursor: not-allowed; }
+        #status { margin-top: 15px; font-weight: 600; font-size: 14px; }
+        .settings-btn { font-size: 12px; color: #888; text-decoration: underline; background: none; border: none; width: auto; margin-top: 15px; cursor: pointer; padding: 0; }
+        .config-area { display: none; margin-bottom: 15px; text-align: left; }
+        .config-area input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📸 Scan & Print Photo</h2>
+
+    <div id="configSection" class="config-area">
+        <label style="font-size: 12px; color: #555;">Server URL (Ngrok Domain):</label>
+        <input type="text" id="serverUrl" placeholder="https://your-domain.ngrok-free.app">
+        <button onclick="saveConfig()" style="padding: 6px; margin-top: 5px; font-size: 12px;">Save URL</button>
+    </div>
+
+    <div class="upload-box">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">Photo select karein ya camera se kheenchein</div>
+        <input type="file" id="photoInput" accept="image/*" capture="environment">
+    </div>
+
+    <img id="imagePreview" class="preview" alt="Photo Preview">
+
+    <button id="printBtn" onclick="uploadAndPrint()">🖨️ Direct Print Karein</button>
+
+    <div id="status"></div>
+
+    <button class="settings-btn" onclick="toggleConfig()">⚙️ Server Settings</button>
+</div>
+
+<script>
+    const photoInput = document.getElementById('photoInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const statusDiv = document.getElementById('status');
+    const serverUrlInput = document.getElementById('serverUrl');
+
+    // Load saved server URL
+    window.onload = () => {
+        const savedUrl = localStorage.getItem('printServerUrl');
+        if (savedUrl) serverUrlInput.value = savedUrl;
+    };
+
+    function toggleConfig() {
+        const area = document.getElementById('configSection');
+        area.style.display = area.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveConfig() {
+        const url = serverUrlInput.value.trim();
+        localStorage.setItem('printServerUrl', url);
+        alert('Server URL Save Ho Gaya!');
+        toggleConfig();
+    }
+
+    photoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    async function uploadAndPrint() {
+        const serverUrl = localStorage.getItem('printServerUrl') || serverUrlInput.value.trim();
+        const file = photoInput.files[0];
+
+        if (!serverUrl) {
+            alert('Pehle Server Settings ⚙️ me jaakar Ngrok URL save karein!');
+            toggleConfig();
+            return;
+        }
+        if (!file) {
+            alert('Kripya koi photo select karein!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        statusDiv.style.color = '#007bff';
+        statusDiv.innerText = '⌛ Photo upload aur print ho rahi hai...';
+        document.getElementById('printBtn').disabled = true;
+
+        try {
+            const endpoint = serverUrl.replace(/\/$/, "") + "/upload";
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                statusDiv.style.color = '#28a745';
+                statusDiv.innerText = '✅ ' + result.message;
+            } else {
+                statusDiv.style.color = '#dc3545';
+                statusDiv.innerText = '❌ Error: ' + result.message;
+            }
+        } catch (error) {
+            statusDiv.style.color = '#dc3545';
+            statusDiv.innerText = '❌ Connection fail! PC par Python Server/Ngrok chal raha hai check karein.';
+            console.error(error);
+        } finally {
+            document.getElementById('printBtn').disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
