@@ -55,10 +55,12 @@
     const statusDiv = document.getElementById('status');
     const serverUrlInput = document.getElementById('serverUrl');
 
-    // Load saved server URL
+    // Load saved server URL or use default hardcoded ngrok link
     window.onload = () => {
-        const savedUrl = localStorage.getItem('printServerUrl');
-        if (savedUrl) serverUrlInput.value = savedUrl;
+        const defaultUrl = "https://populate-bluish-judiciary.ngrok-free.dev";
+        const savedUrl = localStorage.getItem('printServerUrl') || defaultUrl;
+        serverUrlInput.value = savedUrl;
+        localStorage.setItem('printServerUrl', savedUrl);
     };
 
     function toggleConfig() {
