@@ -3,46 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instant Photo Print</title>
+    <title>Instant QR Print Raj</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background: #eef2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; }
-        .card { background: #ffffff; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 100%; max-width: 420px; text-align: center; }
-        h2 { color: #1a1a1a; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
-        .upload-box { border: 2px dashed #007bff; border-radius: 12px; padding: 20px; background: #f8fafc; cursor: pointer; margin-bottom: 15px; position: relative; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; }
+        .card { background: #ffffff; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; position: relative; overflow: hidden; }
+        
+        /* Online Status Badge */
+        .status-badge { display: inline-flex; align-items: center; background: #e6f4ea; color: #137333; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; border: 1px solid #ceead6; }
+        .status-dot { width: 8px; height: 8px; background-color: #34a853; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 6px #34a853; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+
+        /* Printer Graphic / Icon */
+        .printer-header-icon { font-size: 45px; background: #e8f0fe; width: 80px; height: 80px; line-height: 80px; border-radius: 50%; margin: 0 auto 12px auto; box-shadow: 0 4px 10px rgba(0,123,255,0.15); }
+        
+        h2 { color: #1a1a1a; margin: 0 0 5px 0; font-size: 22px; font-weight: 700; }
+        .tagline { color: #5f6368; font-size: 13px; margin-bottom: 20px; font-weight: 500; }
+
+        .upload-box { border: 2px dashed #1a73e8; border-radius: 14px; padding: 22px; background: #f8f9fa; cursor: pointer; margin-bottom: 15px; position: relative; transition: 0.3s; }
+        .upload-box:hover { background: #f1f3f4; border-color: #0b57d0; }
         .upload-box input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
-        .upload-icon { font-size: 40px; color: #007bff; margin-bottom: 8px; }
-        .upload-text { font-size: 14px; color: #555; }
-        .preview { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 15px; display: none; object-fit: contain; }
-        button { background: #007bff; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        button:hover { background: #0056b3; }
-        button:disabled { background: #94c2f5; cursor: not-allowed; }
+        .upload-icon { font-size: 36px; color: #1a73e8; margin-bottom: 6px; }
+        .upload-text { font-size: 14px; color: #3c4043; font-weight: 500; }
+        
+        .preview { max-width: 100%; max-height: 220px; border-radius: 10px; margin-top: 15px; display: none; object-fit: contain; border: 1px solid #ddd; }
+        
+        button.print-btn { background: #1a73e8; color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 12px rgba(26,115,232,0.3); }
+        button.print-btn:hover { background: #1557b0; }
+        button.print-btn:disabled { background: #aecbfa; cursor: not-allowed; box-shadow: none; }
+        
         #status { margin-top: 15px; font-weight: 600; font-size: 14px; }
-        .settings-btn { font-size: 12px; color: #888; text-decoration: underline; background: none; border: none; width: auto; margin-top: 15px; cursor: pointer; padding: 0; }
-        .config-area { display: none; margin-bottom: 15px; text-align: left; }
+        
+        .settings-btn { font-size: 12px; color: #70757a; text-decoration: underline; background: none; border: none; width: auto; margin-top: 15px; cursor: pointer; padding: 0; }
+        .config-area { display: none; margin-bottom: 15px; text-align: left; background: #f1f3f4; padding: 10px; border-radius: 8px; }
         .config-area input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>📸 Scan & Print Photo</h2>
+    <!-- Online Active Badge -->
+    <div class="status-badge">
+        <span class="status-dot"></span> Online Active & Ready
+    </div>
+
+    <!-- Printer Graphic -->
+    <div class="printer-header-icon">🖨️</div>
+    <h2>Instant Print Raj</h2>
+    <div class="tagline">⚡ Bina Wi-Fi & Bluetooth ke Direct Print Karein</div>
 
     <div id="configSection" class="config-area">
-        <label style="font-size: 12px; color: #555;">Server URL (Ngrok Domain):</label>
+        <label style="font-size: 11px; color: #555;">Server URL (Ngrok Domain):</label>
         <input type="text" id="serverUrl" placeholder="https://your-domain.ngrok-free.app">
-        <button onclick="saveConfig()" style="padding: 6px; margin-top: 5px; font-size: 12px;">Save URL</button>
+        <button onclick="saveConfig()" style="padding: 5px; margin-top: 5px; font-size: 11px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Save URL</button>
     </div>
 
     <div class="upload-box">
-        <div class="upload-icon">📷</div>
-        <div class="upload-text">Gallery se photo ya file select karein</div>
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Gallery se Photo ya PDF Select Karein</div>
         <input type="file" id="photoInput" accept="image/*,application/pdf">
     </div>
 
     <img id="imagePreview" class="preview" alt="Photo Preview">
 
-    <button id="printBtn" onclick="uploadAndPrint()">🖨️ Direct Print Karein</button>
+    <button class="print-btn" id="printBtn" onclick="uploadAndPrint()">🖨️ Direct Print Karein</button>
 
     <div id="status"></div>
 
@@ -55,7 +79,7 @@
     const statusDiv = document.getElementById('status');
     const serverUrlInput = document.getElementById('serverUrl');
 
-    // Load saved server URL or use default hardcoded ngrok link
+    // Default hardcoded ngrok link load karein
     window.onload = () => {
         const defaultUrl = "https://populate-bluish-judiciary.ngrok-free.dev";
         const savedUrl = localStorage.getItem('printServerUrl') || defaultUrl;
@@ -97,15 +121,15 @@
             return;
         }
         if (!file) {
-            alert('Kripya koi photo select karein!');
+            alert('Kripya koi photo ya PDF file select karein!');
             return;
         }
 
         const formData = new FormData();
         formData.append('photo', file);
 
-        statusDiv.style.color = '#007bff';
-        statusDiv.innerText = '⌛ Photo upload aur print ho rahi hai...';
+        statusDiv.style.color = '#1a73e8';
+        statusDiv.innerText = '⌛ File upload aur print ho rahi hai...';
         document.getElementById('printBtn').disabled = true;
 
         try {
@@ -118,14 +142,14 @@
             const result = await response.json();
 
             if (response.ok) {
-                statusDiv.style.color = '#28a745';
+                statusDiv.style.color = '#137333';
                 statusDiv.innerText = '✅ ' + result.message;
             } else {
-                statusDiv.style.color = '#dc3545';
+                statusDiv.style.color = '#c5221f';
                 statusDiv.innerText = '❌ Error: ' + result.message;
             }
         } catch (error) {
-            statusDiv.style.color = '#dc3545';
+            statusDiv.style.color = '#c5221f';
             statusDiv.innerText = '❌ Connection fail! PC par Python Server/Ngrok chal raha hai check karein.';
             console.error(error);
         } finally {
